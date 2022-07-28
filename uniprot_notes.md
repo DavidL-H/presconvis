@@ -1,5 +1,5 @@
 ## Notes Uniprot API
-source: [EMBL-EBI Uniprot API video guide (2021)](https://embl-ebi.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=efde16e9-c2a9-427a-ada2-adce007a9df1)
+source: [EMBL-EBI Uniprot API video guide (2021)](https://embl-ebi.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=efde16e9-c2a9-427a-ada2-adce007a9df1)  
 [slides](https://drive.google.com/file/d/1qZXLl19apibjszCXroC1Jg2BGjcychqX/view)
 
 Data sources:  
