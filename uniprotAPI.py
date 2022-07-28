@@ -1,5 +1,8 @@
-# Access uniprot queries
-import requests, sys, json, time
+# Accessing the uniprot API with python requests
+# Inspired by the following presentation: https://drive.google.com/file/d/1qZXLl19apibjszCXroC1Jg2BGjcychqX/view
+# David Lennox-Hvenekilde 28/7/22
+
+import requests, sys, json, time, os
 
 # rest end-points
 WEBSITE_API = "https://rest.uniprot.org/"
@@ -31,6 +34,7 @@ def uniprot_query(search_string):
     uniprot_query('uniref_cluster_90:UniRef90_Q8X825')
     """
     r = get_url(WEBSITE_API+"/uniprotkb/search?query="+search_string)
+    #print(r.headers)
     return r
 
 def uniprot_json_to_fasta_print(json_response):
@@ -57,13 +61,27 @@ def write_fasta_from_json(json_response, file_name):
 
 
 # Lets do a loop for accessing the entirety of the uniprot query pages
-def all_fasta_query(search_string):
+def all_fasta_query(search_string, force = True):
     """
     This function loops through all the pages of a uniprot query, saving all entries to a .fasta file.
-    e.g.
-    search_string = "uniref_cluster_90:UniRef90_Q8X825"
-    all_fasta_query(search_string)
+    Input:
+    - search_string: a uniprot advanced query suffix (e.g. "uniref_cluster_90:UniRef90_Q8X825")
+    - force: Overwrite the existing fasta file of the same name, if present?
+    Output:
+    - fasta file saved to current wd, 
+    - retuns fasta file path to be saved to variable (e.g. "./UniRef90_Q8X825.fasta")
     """
+    # Check is the fasta file already exists in the directory
+    file_path = search_string[search_string.index(":")+1::]+".fasta"
+    if os.path.isfile(file_path):
+        if force:
+            os.remove(file_path)
+            print("Existing fasta file deleted, and remade")
+        elif not force:
+            print("Fasta already exists")
+            return file_path
+
+    # Start the loop to extract ID and sequence from the JSON query response
     start = time.time()
     r = uniprot_query(search_string)
 
@@ -85,8 +103,6 @@ def all_fasta_query(search_string):
 
     end = time.time()
     print("fasta file fetched in "+ str(round(end - start, 3)) + " seconds")
+    return file_path
 
-# Example for downloading all sequences of uniref_90 cluster Q8X825 (BioB)
-search_string = "uniref_cluster_90:UniRef90_Q8X825"
-all_fasta_query(search_string)
 
