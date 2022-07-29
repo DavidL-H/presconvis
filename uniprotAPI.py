@@ -107,6 +107,9 @@ def all_fasta_query(search_string, force = True):
 
 # Turn the response into a dataframe of values of interest #####################################################
 def response_to_df(response):
+    """
+    Turns response into JSON dict, then into a pandas df, using the key values listed in "names".
+    """
     all_data = response.json()["results"]
     names = ["scientificName","lineage","entryType","primaryAccession","uniProtkbId","fullName","sequence"]
     newdict = {}
@@ -137,9 +140,13 @@ def response_to_df(response):
     return query_df_temp
 
 # Grab all query pages as dataframe ###################################################################
-def all_df_query(search_string):
-
-
+def all_df_query(search_string, save_csv = False):
+    """
+    Tastes a Uniprot query string as input:
+    e.g. "uniref_cluster_90:UniRef90_Q8X825"
+    And returns a pandas df with key values (defined by response_to_df())
+    of all the entries in the query
+    """
     # Start the loop to extract ID and sequence from the JSON query response
     start = time.time()
     r = uniprot_query(search_string)
@@ -148,8 +155,11 @@ def all_df_query(search_string):
     inf_loop = True
     n_page = 1
     while inf_loop:
-        # Write the response to fasta
-        df_temp = response_to_df(r)
+        # Extract key values from json to dataframe
+        try:
+            df_temp = response_to_df(r)
+        except:
+            break
 
         # Try to append temporary dataframe to master dataframe
         try: 
@@ -158,17 +168,21 @@ def all_df_query(search_string):
         except:
             query_df = df_temp
 
-        # Try to grab the next page of the query results, if not there, break.
+        # Try to grab the next page of the query results, if no next page there, break.
         try:
             next_page = r.headers["Link"]
         except:
-            #print("last page")
             break
+
+        # Extract next page url, and use for querying next page of search
         next_page = next_page[next_page.index("<")+1:next_page.index(">")]
-        #print(next_page)
         r = get_url(next_page)
         n_page += 1
 
     end = time.time()
     print("dataframe fetched in  "+ str(round(end - start, 3)) + " seconds")
-    return query_df
+
+    if save_csv:
+        query_df.to_csv(search_string[search_string.index(":")+1::]+".csv")
+    else:
+        return query_df
