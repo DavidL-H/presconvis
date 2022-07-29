@@ -3,6 +3,7 @@
 # David Lennox-Hvenekilde 28/7/22
 
 import requests, sys, json, time, os
+import pandas as pd
 
 # rest end-points
 WEBSITE_API = "https://rest.uniprot.org/"
@@ -23,8 +24,6 @@ def get_url(url, **kwargs):
 # Lets build a function:
 # the query is what comes after https://www.uniprot.org/uniprotkb?query=
 # When you are searching manually on the website
-
-search_string = "uniref_cluster_90:UniRef90_Q8X825"
 def uniprot_query(search_string):
     """
     This function returns the json response of a advanced search query.
@@ -36,6 +35,7 @@ def uniprot_query(search_string):
     r = get_url(WEBSITE_API+"/uniprotkb/search?query="+search_string)
     #print(r.headers)
     return r
+
 
 def uniprot_json_to_fasta_print(json_response):
     """
@@ -60,7 +60,7 @@ def write_fasta_from_json(json_response, file_name):
             fasta_file.writelines(data["results"][i]["sequence"]["value"]+"\n")
 
 
-# Lets do a loop for accessing the entirety of the uniprot query pages
+# Lets do a loop for accessing the entirety of the uniprot query pages ######################################
 def all_fasta_query(search_string, force = True):
     """
     This function loops through all the pages of a uniprot query, saving all entries to a .fasta file.
@@ -105,4 +105,70 @@ def all_fasta_query(search_string, force = True):
     print("fasta file fetched in "+ str(round(end - start, 3)) + " seconds")
     return file_path
 
+# Turn the response into a dataframe of values of interest #####################################################
+def response_to_df(response):
+    all_data = response.json()["results"]
+    names = ["scientificName","lineage","entryType","primaryAccession","uniProtkbId","fullName","sequence"]
+    newdict = {}
+    temp_list1 = []
+    temp_list2 = []
+    temp_list3 = []
+    temp_list4 = []
+    temp_list5 = []
+    temp_list6 = []
+    temp_list7 = []
+    for i in range(len(all_data)):
+        temp_list1.append(all_data[i]["organism"][names[0]])
+        temp_list2.append(", ".join(all_data[1]["organism"][names[1]]))
+        temp_list3.append(all_data[i][names[2]])
+        temp_list4.append(all_data[i][names[3]])
+        temp_list5.append(all_data[i][names[4]])
+        temp_list6.append(all_data[i]["proteinDescription"]["recommendedName"][names[5]]["value"])
+        temp_list7.append(all_data[i][names[6]]["value"])
+    list_of_lists = [temp_list1,temp_list2,temp_list3,temp_list4,temp_list5,temp_list6,temp_list7]
+    #length = [len(temp_list1), len(temp_list2),len(temp_list3), len(temp_list4), len(temp_list5), len(temp_list6), len(temp_list7)]
 
+    i=0
+    for n in names:
+        newdict[n] = list_of_lists[i]
+        i += 1
+
+    query_df_temp = pd.DataFrame(newdict)
+    return query_df_temp
+
+# Grab all query pages as dataframe ###################################################################
+def all_df_query(search_string):
+
+
+    # Start the loop to extract ID and sequence from the JSON query response
+    start = time.time()
+    r = uniprot_query(search_string)
+
+    # While there is still a next page:
+    inf_loop = True
+    n_page = 1
+    while inf_loop:
+        # Write the response to fasta
+        df_temp = response_to_df(r)
+
+        # Try to append temporary dataframe to master dataframe
+        try: 
+            frames = [query_df,df_temp]
+            query_df = pd.concat(frames)
+        except:
+            query_df = df_temp
+
+        # Try to grab the next page of the query results, if not there, break.
+        try:
+            next_page = r.headers["Link"]
+        except:
+            #print("last page")
+            break
+        next_page = next_page[next_page.index("<")+1:next_page.index(">")]
+        #print(next_page)
+        r = get_url(next_page)
+        n_page += 1
+
+    end = time.time()
+    print("dataframe fetched in  "+ str(round(end - start, 3)) + " seconds")
+    return query_df
