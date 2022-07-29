@@ -1,4 +1,12 @@
 # presconvis
-Quick and simple PRotein RESidue CONservation and VISualization tool
+Quick and simple PRotein RESidue CONservation and VISualization tool.
 
 This tool takes a single protein sequence and user input, grabbing n proteins from uniprot (UnirefXX), performing MSA, and visualizing both a tree for total conservation, but also a 2d sequence plot, showing indivudual residue conservation.
+
+This tools accesses protein sequences and their meta data from the **Uniprot REST API**:  
+https://rest.uniprot.org/  
+https://www.uniprot.org/help/api  
+
+Multiple sequence alignments are run remotely with Clustal Omega via the **EMBL-EBI REST API**:  
+https://www.ebi.ac.uk/Tools/services/rest/clustalo  
+https://www.ebi.ac.uk/Tools/common/tools/help/  
