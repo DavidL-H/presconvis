@@ -142,7 +142,7 @@ def response_to_df(response):
 # Grab all query pages as dataframe ###################################################################
 def all_df_query(search_string, save_csv = False):
     """
-    Tastes a Uniprot query string as input:
+    Takes a Uniprot query string as input:
     e.g. "uniref_cluster_90:UniRef90_Q8X825"
     And returns a pandas df with key values (defined by response_to_df())
     of all the entries in the query
