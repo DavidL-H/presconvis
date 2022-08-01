@@ -64,9 +64,7 @@ def clustalo_alignment():
 
 # header needs to be modified depending on result type wanted
 # See result types https://www.ebi.ac.uk/Tools/common/tools/help/
-headers = {
-    'Accept': 'text/x-clustalw-alignment'
-}
+
 # https://www.ebi.ac.uk/Tools/services/rest/clustalo/result/clustalo-R20220729-150319-0510-47676526-p2m/aln-clustal_num
 response = requests.get(baseUrl+"/result/"+jobid+"/aln-clustal_num")
 
