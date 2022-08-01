@@ -1,6 +1,8 @@
-# Accessing the uniprot API with python requests
-# Inspired by the following presentation: https://drive.google.com/file/d/1qZXLl19apibjszCXroC1Jg2BGjcychqX/view
-# David Lennox-Hvenekilde 28/7/22
+'''
+Accessing the uniprot API with python requests
+Inspired by the following presentation: https://drive.google.com/file/d/1qZXLl19apibjszCXroC1Jg2BGjcychqX/view
+David Lennox-Hvenekilde
+'''
 
 import requests, sys, json, time, os
 import pandas as pd
@@ -8,6 +10,9 @@ import pandas as pd
 # rest end-points
 WEBSITE_API = "https://rest.uniprot.org/"
 PROTEINS_API = "https://www.ebi.ac.uk/proteins/api/"
+
+# Root
+root = "./endpoints/"
 
 # Helper function for get response from requested URL
 def get_url(url, **kwargs):
@@ -55,7 +60,7 @@ def write_fasta_from_json(json_response, file_name):
     """
     data = json_response.json()
     for i in range(len(data["results"])):
-        with open(file_name[file_name.index(":")+1::]+".fasta", "a") as fasta_file:
+        with open(root+file_name[file_name.index(":")+1::]+".fasta", "a") as fasta_file:
             fasta_file.writelines(">"+data["results"][i]["primaryAccession"]+"\n")
             fasta_file.writelines(data["results"][i]["sequence"]["value"]+"\n")
 
@@ -72,7 +77,7 @@ def all_fasta_query(search_string, force = True):
     - retuns fasta file path to be saved to variable (e.g. "./UniRef90_Q8X825.fasta")
     """
     # Check is the fasta file already exists in the directory
-    file_path = search_string[search_string.index(":")+1::]+".fasta"
+    file_path = root+search_string[search_string.index(":")+1::]+".fasta"
     if os.path.isfile(file_path):
         if force:
             os.remove(file_path)
@@ -140,7 +145,7 @@ def response_to_df(response):
     return query_df_temp
 
 # Grab all query pages as dataframe ###################################################################
-def all_df_query(search_string, save_csv = False):
+def all_df_query(search_string, save_csv = False, force = False):
     """
     Takes a Uniprot query string as input:
     e.g. "uniref_cluster_90:UniRef90_Q8X825"
@@ -150,6 +155,16 @@ def all_df_query(search_string, save_csv = False):
     # Start the loop to extract ID and sequence from the JSON query response
     start = time.time()
     r = uniprot_query(search_string)
+
+
+    file_path = root+search_string[search_string.index(":")+1::]+".csv"
+    if os.path.isfile(file_path):
+        if force:
+            os.remove(file_path)
+            print("Existing dataframe file deleted, and remade")
+        elif not force:
+            print("Dataframe already exists")
+            return pd.read_csv(file_path)
 
     # While there is still a next page:
     inf_loop = True
@@ -183,6 +198,6 @@ def all_df_query(search_string, save_csv = False):
     print("dataframe fetched in  "+ str(round(end - start, 3)) + " seconds")
 
     if save_csv:
-        query_df.to_csv(search_string[search_string.index(":")+1::]+".csv")
+        query_df.to_csv("./endpoints/"+search_string[search_string.index(":")+1::]+".csv")
     else:
         return query_df
