@@ -73,7 +73,6 @@ def alignment_job_status(job_id):
     return str(response.content)[2:-1]
 
 
-
 # GET results #################################################
 def clustalo_alignment(job_id, save_clustalo = True, force = False):
     '''
@@ -97,7 +96,7 @@ def clustalo_alignment(job_id, save_clustalo = True, force = False):
                 return clustalo_file.read()
 
     if alignment_job_status(job_id) != "FINISHED":
-        print("Job still running")
+        print("Job still running. Please wait...")
         FINISHED = False
         return FINISHED
 

@@ -3,9 +3,10 @@
 
 from Bio.Blast import NCBIWWW
 import time
+root = "./endpoints/"
 
-with open("UniRef90_Q8X825.fasta", "r") as fasta_file:
-    fasta_file.readlines()
+#with open("UniRef90_Q8X825.fasta", "r") as fasta_file:
+#    fasta_file.readlines()
 
 seq_test = "MAHRPRWTLSQVTELFEKPLLDLLFEAQQVHRQHFDPRQVQVSTLLSIKTGACPEDCKYCPQSSRYKTGLEAERLMEVEQVLESARKAKAAGSTRFCMGAAWKNPHERDMPYLEQMVQGVKAMGLEACMTLGTLSESQAQRLANAGLDYYNHNLDTSPEFYGYIITTRTYQERLDTLEKVREAGIKVCSGGIVGLGETVKDRAGLLLQLANLPTPPESVPINMLVKVKGTPLADNDDVDAFDFIRTIAVARIMMPTSYVRLSAGREQMNEQTQAMCFMAGANSIFYGCKLLTTPNPEEDKDLQLFRKLGLNPQQTAVLAGDNEQQQRLEQALMTPDTDEYYNAAAL"
 
@@ -16,6 +17,6 @@ end = time.time()
 print("BLAST query took: "+ str(end-start))
 
 # Save results to xml
-with open('./endpoints/results.xml', 'w') as save_file:
+with open(root+'blast_results.xml', 'w') as save_file:
     blast_results = result_handle.read() 
     save_file.write(blast_results)
