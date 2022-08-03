@@ -1,5 +1,6 @@
 from uniprotAPI import all_fasta_query, uniprot_query, all_df_query
 from clustalomegaAPI import post_alignment_request, clustalo_alignment, root
+from aa_variability_msa import clustalo_to_matrix
 #import clustalomegaAPI as clust
 import pandas as pd
 import time
@@ -37,3 +38,10 @@ while clustal_omga_file == False:
     clustal_omga_file = clustalo_alignment(job_id) 
 
 print(clustal_omga_file)
+
+# To matrix
+##################################################################
+example = "clustalo-R20220801-162757-0097-51791681-p1m.clustal_num"
+
+alignment_df = clustalo_to_matrix(example)
+alignment_df.head
