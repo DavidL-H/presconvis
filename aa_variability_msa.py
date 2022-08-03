@@ -69,10 +69,14 @@ with open(root+example, "r") as alignment:
                     trigger = False
                 else:
                     A2 = np.vstack([A2, [id_name]+list(amino_acids)])
+# Delete first row, used for initiating the array
+A = np.delete(A, (0), axis=0)
 
 # Can use numpy hstack to concatenate matrices horizontally
 A.shape
 A2.shape
+
+A[0,:]
 
 # Count unique sequences
 seq_len = len(set(A[:,0]))
@@ -80,3 +84,19 @@ seq_len = len(set(A[:,0]))
 # Loop through the matrix and reshape it based on the unqiue sequence identifiers
 new_a = np.hstack((A,A))
 
+#
+# Number of times
+start = 0 
+end = seq_len
+new_array = A[start:end,:]
+new_array.shape
+for _ in range(int(len(A)/seq_len)-1):
+    start += seq_len
+    end += seq_len
+    temp_array = A[(start):end,1:]
+
+    # concatenate matrices horizontally
+    new_array = np.hstack((new_array,temp_array))
+
+new_array.shape
+pd.DataFrame(new_array).to_csv(root+"MSAmatrix.csv")
