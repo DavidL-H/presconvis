@@ -7,6 +7,9 @@ David Lennox-Hvenekilde
 import numpy as np
 import pandas as pd
 import os
+from collections import Counter
+import blosum as bl
+
 root = "./endpoints/"
 
 # Turn the clustal omega alignment into a matrix/dataframe
@@ -124,3 +127,47 @@ def clustalo_df_formating(clustalo_df, query_seq = "default"):
 
 formatted_df = clustalo_df_formating(clustalo_df)
 formatted_df.head(4)
+
+# Lets do some summary statistics on the dataframe
+
+# create a new data frame, initialized with AA index of query sequence
+final_df = pd.DataFrame(formatted_df.iloc[0].values.tolist(), columns=["Residue"])
+
+
+
+# Calculate residue variability scores
+blosum_matrix = bl.BLOSUM(62)
+
+example_dict = dict(Counter(formatted_df[208].tolist()))
+del example_dict["-"]
+
+# Generate a score based on BLOSUM 62, for each alignemt position
+total_score = 0
+for key in example_dict:
+    for key_2 in example_dict:
+        total_score += blosum_matrix[key+key_2]*(example_dict[key]+example_dict[key_2])
+
+# Normalize score by number of proteins in alignment
+total_score = total_score/len(formatted_df)
+
+# Want to calculate residue variability at each residue with BLOSUM 62
+
+# Count residues for each position
+all_scores = []
+
+for pos in formatted_df.columns.tolist():
+    pos_dict = dict(Counter(formatted_df[pos].tolist()))
+
+    total_score = 0
+    for key in example_dict:
+        for key_2 in example_dict:
+            total_score += blosum_matrix[key+key_2]*(example_dict[key]+example_dict[key_2])
+
+    total_score = total_score/len(formatted_df)
+    all_scores.append(total_score)
+
+# Normalize score by number of proteins in alignment
+
+
+
+
