@@ -1,9 +1,9 @@
 from uniprotAPI import all_fasta_query, uniprot_query, all_df_query
 from clustalomegaAPI import post_alignment_request, clustalo_alignment, root
 from aa_variability_msa import clustalo_to_matrix, clustalo_df_formating, final_MSA_df
-#import clustalomegaAPI as clust
 import pandas as pd
 import time
+import os
 
 # Testing out UNIPROT functions
 ##################################################################
@@ -28,22 +28,28 @@ print(all_dat_df.shape)
 ##################################################################
 
 # Post a job to Clustal Omega
-job_id = post_alignment_request(fasta_file)
-print("Clustal Omega job successfully submitted with Job ID: " + job_id)
+# IF the final data frame from the job does not exist
+ss = search_string.split(":")[1]
 
-# Wait for job to finish running, then print it
-clustal_omga_file = clustalo_alignment(job_id) 
-while clustal_omga_file == False:
-    time.sleep(3)
-    clustal_omga_file = clustalo_alignment(job_id) 
+if not os.path.isfile(root + ss + ".clustal_num"):
+    job_id = post_alignment_request(fasta_file)
+    print("Clustal Omega job successfully submitted with Job ID: " + job_id)
 
-print(clustal_omga_file)
+    # Wait for job to finish running, then print it
+
+    clustal_omga_file = clustalo_alignment(job_id, fasta_origin=ss) 
+    while clustal_omga_file == False:
+        time.sleep(3)
+        clustal_omga_file = clustalo_alignment(job_id, fasta_origin=ss) 
+
+    print(clustal_omga_file)
+else:
+    alignment = ss + ".clustal_num"
 
 # To matrix and formatted data frame
 ##################################################################
 # From clustal omega alignment to matrix
-example = "clustalo-R20220801-162757-0097-51791681-p1m.clustal_num"
-clustalo_df = clustalo_to_matrix(example)
+clustalo_df = clustalo_to_matrix(alignment)
 clustalo_df.head(4)
 # From matrix to data frame
 formatted_df = clustalo_df_formating(clustalo_df)

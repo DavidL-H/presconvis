@@ -23,13 +23,13 @@ def clustalo_to_matrix(clustalo_file, save_matrix = True, force = False):
     '''
     alignment_name = clustalo_file.split(".")[0]
     # Check existing file
-    if os.path.isfile(root + alignment_name +".csv"):
+    if os.path.isfile(root + alignment_name + "_MSA" +".csv"):
         if force:
-            os.remove(root + alignment_name +".csv")
+            os.remove(root + alignment_name + "_MSA" +".csv")
             print("Existing clustal omega file deleted, and remade")
         elif not force:
             print("Clustal omega matrix file already exists")
-            return pd.read_csv(root + alignment_name +".csv")
+            return pd.read_csv(root + alignment_name+ "_MSA" +".csv")
 
     # Check number of rows in file
     with open(root+clustalo_file, "r") as alignment:
@@ -86,8 +86,8 @@ def clustalo_to_matrix(clustalo_file, save_matrix = True, force = False):
 
     # Saving the dataframe
     if save_matrix:
-        print("Matrix saved as: " + root + alignment_name +".csv")
-        pd.DataFrame(new_array).to_csv(root + alignment_name +".csv")
+        print("Matrix saved as: " + root + alignment_name + "_MSA" +".csv")
+        pd.DataFrame(new_array).to_csv(root + alignment_name + "_MSA" +".csv")
         return pd.DataFrame(new_array)
     else:
         return pd.DataFrame(new_array)

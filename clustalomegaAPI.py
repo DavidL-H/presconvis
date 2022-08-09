@@ -74,7 +74,7 @@ def alignment_job_status(job_id):
 
 
 # GET results #################################################
-def clustalo_alignment(job_id, save_clustalo = True, force = False):
+def clustalo_alignment(job_id, fasta_origin, save_clustalo = True, force = False):
     '''
         Take a job_id as input
         If the job exists and is finished, return the text, and save the
@@ -83,16 +83,20 @@ def clustalo_alignment(job_id, save_clustalo = True, force = False):
         request header needs to be modified depending on result type wanted
         See result types https://www.ebi.ac.uk/Tools/common/tools/help/
         The response text file has to reformated slightly
-    '''
-    file_path = root+job_id+".clustal_num"
 
-    if os.path.isfile(file_path):
+        V2.0
+        Saved file with fasta_origin as the name, as job_id changes with every query
+        In order to cache results, this is not ideal.
+    '''
+    file_path = root+fasta_origin+".clustal_num"
+
+    if os.path.isfile(fasta_origin):
         if force:
-            os.remove(file_path)
+            os.remove(fasta_origin)
             print("Existing clustal omega file deleted, and remade")
         elif not force:
             print("Clustal omega file already exists")
-            with open(file_path, "r") as clustalo_file:
+            with open(fasta_origin, "r") as clustalo_file:
                 return clustalo_file.read()
 
     if alignment_job_status(job_id) != "FINISHED":
