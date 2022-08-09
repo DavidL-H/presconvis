@@ -5,6 +5,7 @@ import pandas as pd
 import time
 import os
 
+start_time = time.time()
 # Testing out UNIPROT functions
 ##################################################################
 
@@ -42,7 +43,8 @@ if not os.path.isfile(root + ss + ".clustal_num"):
         time.sleep(3)
         clustal_omga_file = clustalo_alignment(job_id, fasta_origin=ss) 
 
-    print(clustal_omga_file)
+    alignment = ss + ".clustal_num"
+    #print(clustal_omga_file)
 else:
     alignment = ss + ".clustal_num"
 
@@ -58,3 +60,6 @@ formatted_df.head(4)
 # From data frame to formatted data frame
 formatted_df_final = final_MSA_df(formatted_df)
 print(formatted_df_final.head(4))
+
+end_time = time.time()
+print("Time consumed in working: ",end_time - start_time)

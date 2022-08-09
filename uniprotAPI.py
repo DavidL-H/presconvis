@@ -199,5 +199,6 @@ def all_df_query(search_string, save_csv = False, force = False):
 
     if save_csv:
         query_df.to_csv("./endpoints/"+search_string[search_string.index(":")+1::]+".csv")
+        return query_df
     else:
         return query_df
