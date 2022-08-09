@@ -3,6 +3,8 @@
 Quick and simple PRotein RESidue CONservation and VISualization tool.
 
 <a href="https://github.com/DavidL-H/presconvis/pulse" alt="Activity"><img src="https://img.shields.io/github/commit-activity/m/DavidL-H/presconvis" /></a>
+![Python 3](https://img.shields.io/badge/Language-Python_3-red.svg)
+![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
 
 This tool takes a single protein sequence and user input, grabbing n proteins from uniprot (UnirefXX), performing MSA, and visualizing both a tree for total conservation, but also a 2d sequence plot, showing indivudual residue conservation.
 
