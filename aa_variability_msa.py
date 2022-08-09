@@ -4,6 +4,8 @@ David Lennox-Hvenekilde
 220208
 '''
 
+from math import log
+from typing import final
 import numpy as np
 import pandas as pd
 import os
@@ -91,11 +93,6 @@ def clustalo_to_matrix(clustalo_file, save_matrix = True, force = False):
         return pd.DataFrame(new_array)
 
 
-example = "clustalo-R20220801-162757-0097-51791681-p1m.clustal_num"
-clustalo_df = clustalo_to_matrix(example)
-clustalo_df.head(4)
-
-
 # Reformat the matrix/dataframe
 def clustalo_df_formating(clustalo_df, query_seq = "default"):
     '''
@@ -125,49 +122,76 @@ def clustalo_df_formating(clustalo_df, query_seq = "default"):
     # We now have our properly formatted dataframe
     return clustalo_df_normalized
 
-formatted_df = clustalo_df_formating(clustalo_df)
-formatted_df.head(4)
 
-# Lets do some summary statistics on the dataframe
+# Generate the final formatted data frame
+def final_MSA_df(formatted_df, file_name = "Final_Score_df", save_df = True, force = False):
+    '''
+    Format the data frame to give a better overview of amino acid occurance at each position
+    and calculate a variability score at each said position
+    '''
 
-# create a new data frame, initialized with AA index of query sequence
-final_df = pd.DataFrame(formatted_df.iloc[0].values.tolist(), columns=["Residue"])
-
-
-
-# Calculate residue variability scores
-blosum_matrix = bl.BLOSUM(62)
-
-example_dict = dict(Counter(formatted_df[208].tolist()))
-del example_dict["-"]
-
-# Generate a score based on BLOSUM 62, for each alignemt position
-total_score = 0
-for key in example_dict:
-    for key_2 in example_dict:
-        total_score += blosum_matrix[key+key_2]*(example_dict[key]+example_dict[key_2])
-
-# Normalize score by number of proteins in alignment
-total_score = total_score/len(formatted_df)
-
-# Want to calculate residue variability at each residue with BLOSUM 62
-
-# Count residues for each position
-all_scores = []
-
-for pos in formatted_df.columns.tolist():
-    pos_dict = dict(Counter(formatted_df[pos].tolist()))
-
-    total_score = 0
-    for key in example_dict:
-        for key_2 in example_dict:
-            total_score += blosum_matrix[key+key_2]*(example_dict[key]+example_dict[key_2])
-
-    total_score = total_score/len(formatted_df)
-    all_scores.append(total_score)
-
-# Normalize score by number of proteins in alignment
+    # Check existing file
+    if os.path.isfile(root + file_name +".csv"):
+        if force:
+            os.remove(root + file_name +".csv")
+            print("Existing data frame file deleted, and remade")
+        elif not force:
+            print("Data frame file already exists. Return saved dataframe")
+            return pd.read_csv(root + file_name +".csv")
 
 
+    # Lets do some summary statistics on the dataframe
+    # create a new data frame, initialized with AA index of query sequence
+    final_df = pd.DataFrame(formatted_df.iloc[0].values.tolist(), columns=["Residue"])
 
+    # Calculate residue variability scores
+    blosum_matrix = bl.BLOSUM(62)
+
+    # Count residues for each position
+    all_scores = []
+    aas = ["A", "R", "N", "D", "C", "E", "Q", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V", "-"]
+    list_of_postiion_values = []
+
+    for pos in formatted_df.columns.tolist():
+        # Count occurance of residue at position: pos
+        pos_dict = dict(Counter(formatted_df[pos].tolist()))
+
+        # Split occurances into a nested list for generating a df
+        aas_n = [0] * len(aas)
+        dict_keys = list(pos_dict.keys()) 
+        for k_i in dict_keys:
+            aas.index(k_i)
+            aas_n[aas.index(k_i)] = pos_dict[k_i]
+
+        list_of_postiion_values.append(aas_n)
+
+        # Delete empty alignment positions, as this doesn't play well with BLOSUM 62 matrix
+        del pos_dict["-"]
+
+        # Generate a score based on BLOSUM 62 and prevalence
+        total_score = 0
+        for key in pos_dict:
+            for key_2 in pos_dict:
+                total_score += blosum_matrix[key+key_2]*(pos_dict[key]+pos_dict[key_2])
+
+        total_score = round(total_score/len(formatted_df),2)
+
+        all_scores.append(total_score)
+
+    # Add counts of residue occurance at each residue position, where each residue option is a column
+    # and each row corresponds to the residue position
+    df_counts_positions = pd.DataFrame(list_of_postiion_values, columns = aas)
+
+    # Normalize score by number of proteins in alignment
+    final_df["Scores"] = all_scores
+    final_df["Position"] = final_df.index.tolist()
+
+    # Merge scores and counts data frames
+    final_df = pd.concat([final_df, df_counts_positions], axis=1)
+    # Save for inspection
+    if save_df:
+        final_df.to_csv(root + file_name + ".csv")
+        return pd.read_csv(root + file_name +".csv")
+    else:
+        return final_df
 
