@@ -8,6 +8,9 @@ Quick and simple PRotein RESidue CONservation and VISualization tool.
 
 This tool takes a single protein sequence and user input, grabbing n proteins from uniprot (UnirefXX), performing MSA, and visualizing both a tree for total conservation, but also a 2d sequence plot, showing indivudual residue conservation.
 
+The front end will be build in with the newly launched Shiny for Python.
+Persistent data storage wil MySQL
+
 This tools accesses protein sequences and their meta data from the **Uniprot REST API**:  
 https://rest.uniprot.org/  
 https://www.uniprot.org/help/api  
