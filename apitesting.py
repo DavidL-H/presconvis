@@ -1,3 +1,10 @@
+'''
+Testing functions for programmatically searching Uniprot, generating a MSA with CLustal Omega,
+and processing said alignment into a dataframe with residue specific conservation scores
+220810
+David
+'''
+
 from uniprotAPI import all_fasta_query, uniprot_query, all_df_query
 from clustalomegaAPI import post_alignment_request, clustalo_alignment, root
 from aa_variability_msa import clustalo_to_matrix, clustalo_df_formating, final_MSA_df
@@ -57,8 +64,8 @@ clustalo_df.head(4)
 formatted_df = clustalo_df_formating(clustalo_df)
 formatted_df.head(4)
 
-# From data frame to formatted data frame
-formatted_df_final = final_MSA_df(formatted_df)
+# From data frame to final formatted data frame
+formatted_df_final = final_MSA_df(formatted_df, file_name= ss+"_final_df")
 print(formatted_df_final.head(4))
 
 end_time = time.time()
