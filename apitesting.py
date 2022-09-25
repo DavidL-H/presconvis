@@ -11,14 +11,15 @@ from aa_variability_msa import clustalo_to_matrix, clustalo_df_formating, final_
 import pandas as pd
 import time
 import os
+import plotly.express as px
 
 start_time = time.time()
 # Testing out UNIPROT functions
 ##################################################################
 
 # Test out fetching of uniprot protein sequences from custom function:
-#search_string = "uniref_cluster_90:UniRef90_Q8X825"
-search_string = "uniref_cluster_50:UniRef50_Q8A7T2"
+search_string = "uniref_cluster_90:UniRef90_Q8X825"
+#search_string = "uniref_cluster_50:UniRef50_Q8A7T2"
 
 # Print query metadata
 response = uniprot_query(search_string)
@@ -70,3 +71,10 @@ print(formatted_df_final.head(4))
 
 end_time = time.time()
 print("Time consumed in working: ",end_time - start_time)
+
+
+# Plotting of AA variability with plotly
+###################################################################
+fig = px.scatter(formatted_df_final, "Position", "Scores", color = "Scores", hover_data = ["Residue"])
+fig.show()
+fig.write_html(root + ss + "_fig"+".html")

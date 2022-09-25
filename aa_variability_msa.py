@@ -29,7 +29,7 @@ def clustalo_to_matrix(clustalo_file, save_matrix = True, force = False):
             print("Existing clustal omega file deleted, and remade")
         elif not force:
             print("Clustal omega matrix file already exists")
-            return pd.read_csv(root + alignment_name+ "_MSA" +".csv")
+            return pd.read_csv(root + alignment_name + "_MSA" +".csv")
 
     # Check number of rows in file
     with open(root+clustalo_file, "r") as alignment:

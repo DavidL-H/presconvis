@@ -49,7 +49,6 @@ app_ui = ui.page_fluid(
             #ui.include_HTML(root + "plot.html")
       ),
     )
-    
 )
 
 
